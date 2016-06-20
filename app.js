@@ -1,5 +1,6 @@
 var express = require('express');
 var Redis = require('ioredis');
+var d3 = require('d3');
 
 var app = express();
 var redis = new Redis(6379, '127.0.0.1');
