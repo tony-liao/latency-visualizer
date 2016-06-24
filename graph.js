@@ -6,7 +6,7 @@ var color = d3.scale.category20();
 
 var force = d3.layout.force()
     .charge(-120)
-    .linkDistance(30)
+    .linkDistance(50)
     .size([width, height]);
 
 var svg = d3.select('body').append("svg")
@@ -33,20 +33,17 @@ d3.json('data.json', function(error, graph){
   var linkText = svg.selectAll(".link")
       .append("text")
       .attr("class", "link-label")
-      .attr("font-family", "Arial, Helvetica, sans-serif")
-      .attr("fill", "Black")
+      //.attr("font-family", "Arial, Helvetica, sans-serif")
+      //.attr("fill", "Black")
       .style("font", "normal 12px Arial")
-      .attr("dy", ".35em")
-      .attr("text-anchor", "middle")
       .text(function(d){
         return d.value;
       });
 
   var node = svg.selectAll(".node")
       .data(graph.nodes)
-    .enter().append("circle")
+      .enter().append("circle")
       .attr("class", "node")
-      .attr("r", 5)
       .style("fill", function(d) { return color(d.group); })
       .call(force.drag);
 
