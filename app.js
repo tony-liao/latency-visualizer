@@ -7,21 +7,6 @@ var redis = new Redis(6379, '127.0.0.1');
 
 var data = {};
 
-// var data = {
-//   "nodes": [
-//     { name: 'a', group: 1 },
-//     { name: 'b', group: 1 },
-//     { name: 'c', group: 1 },
-//     { name: 'd', group: 1 } ],
-//   "links": [
-//     { source: 0, target: 1, value: 10 },
-//     { source: 0, target: 3, value: 2 },
-//     { source: 1, target: 3, value: 12 },
-//     { source: 2, target: 0, value: 5 },
-//     { source: 2, target: 1, value: 50 }
-// ]};
-
-
 app.get('/', function (req, res) {
   var newData = {nodes:[], links:[]};
 
@@ -49,14 +34,13 @@ app.get('/', function (req, res) {
   });
 });
 
-
 app.get('/graph.js', function (req, res) {
   res.sendFile(__dirname + '/graph.js')
 });
 
 app.get('/data.json', function (req, res) {
   //console.log(data);
-  res.send(JSON.stringify(data));
+  res.send(data);
 });
 
 app.listen(3000, function () {

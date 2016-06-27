@@ -1,12 +1,12 @@
 // Lifted from d3 wiki
-var width = 960,
-    height = 500;
+var width = 1600,
+    height = 900;
 
 var color = d3.scale.category20();
 
 var force = d3.layout.force()
     .charge(-120)
-    .linkDistance(50)
+    .linkDistance(200)
     .size([width, height]);
 
 var svg = d3.select('body').append("svg")
@@ -36,16 +36,26 @@ d3.json('data.json', function(error, graph){
       //.attr("font-family", "Arial, Helvetica, sans-serif")
       //.attr("fill", "Black")
       .style("font", "normal 12px Arial")
-      .text(function(d){
-        return d.value;
+      .text(function(l){
+        return l.value;
       });
 
   var node = svg.selectAll(".node")
       .data(graph.nodes)
-      .enter().append("circle")
+      .enter().append("g")
       .attr("class", "node")
-      .style("fill", function(d) { return color(d.group); })
-      .call(force.drag);
+      .call(force.drag)
+      .append("circle")
+      .attr("class", "node-circle")
+      .style("fill", function(d) { return color(d.group); });
+
+
+  var nodeText = svg.selectAll(".node")
+      .append("text")
+      .attr("class", "node-label")
+      .text(function(n){
+        return n.name;
+      });
 
   node.append("title")
       .text(function(d) { return d.name; });
@@ -66,5 +76,8 @@ d3.json('data.json', function(error, graph){
 
     node.attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
+
+    nodeText.attr("x", function(d) {return d.x;})
+            .attr("y", function(d) {return d.y;});
   });
 });
