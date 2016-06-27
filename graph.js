@@ -67,5 +67,4 @@ d3.json('data.json', function(error, graph){
     node.attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
   });
-
 });
