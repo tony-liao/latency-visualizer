@@ -19,61 +19,60 @@ d3.json('data.json', function(error, graph){
   if (error) throw error;
 
   force
-    .nodes(graph.nodes)
-    .links(graph.links)
-    .start();
+      .nodes(graph.nodes)
+      .links(graph.links)
+      .start();
 
   svg.append("defs").selectAll("marker")
-    .data(["end"])
+      .data(["end"])
     .enter().append("marker")
-    .attr("id", function(d) { return d; })
-    .attr("viewBox", "0 -5 10 10")
-    .attr("refX", 25)
-    .attr("refY", 2)
-    .attr("markerWidth", 6)
-    .attr("markerHeight", 6)
-    .attr("orient", "auto")
-    .style("fill", "#999")
-    .append("path")
-    .attr("d", "M0,-5L10,0L0,5");
+      .attr("id", function(d) { return d; })
+      .attr("viewBox", "0 -5 10 10")
+      .attr("refX", 25)
+      .attr("refY", 2)
+      .attr("markerWidth", 6)
+      .attr("markerHeight", 6)
+      .attr("orient", "auto")
+      .style("fill", "#999")
+      .append("path")
+      .attr("d", "M0,-5L10,0L0,5");
 
   var link = svg.selectAll(".link")
-    .data(graph.links)
-    .enter()
-    .append("g")
-    .attr("class", "link")
-    .append("path")
-    .attr("class", "link-path")
-    .style("fill", "transparent")
-    .style("stroke-width", 3)
-    .attr("marker-end", "url(#end)");
+      .data(graph.links)
+    .enter().append("g")
+      .attr("class", "link")
+      .append("path")
+      .attr("class", "link-path")
+      .style("fill", "transparent")
+      .style("stroke-width", 3)
+      .attr("marker-end", "url(#end)");
 
   var linkText = svg.selectAll(".link")
-    .append("text")
-    .attr("class", "link-label")
-    //.attr("font-family", "Arial, Helvetica, sans-serif")
-    //.attr("fill", "Black")
-    //.style("font", "normal 12px Arial")
-    .text(function(l){
-      return l.value;
-    });
+      .append("text")
+      .attr("class", "link-label")
+      //.attr("font-family", "Arial, Helvetica, sans-serif")
+      //.attr("fill", "Black")
+      //.style("font", "normal 12px Arial")
+      .text(function(l){
+        return l.value;
+      });
 
   var node = svg.selectAll(".node")
-    .data(graph.nodes)
+      .data(graph.nodes)
     .enter().append("g")
-    .attr("class", "node")
-    .call(force.drag)
-    .append("circle")
-    .attr("class", "node-circle")
-    .style("fill", function(d) { return color(d.group); });
+      .attr("class", "node")
+      .call(force.drag)
+      .append("circle")
+      .attr("class", "node-circle")
+      .style("fill", function(d) { return color(d.group); });
 
 
   var nodeText = svg.selectAll(".node")
-    .append("text")
-    .attr("class", "node-label")
-    .text(function(n){
-      return n.name;
-    });
+      .append("text")
+      .attr("class", "node-label")
+      .text(function(n){
+        return n.name;
+      });
 
   node.append("title")
       .text(function(d) { return d.name; });
