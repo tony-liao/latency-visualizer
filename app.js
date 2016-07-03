@@ -10,13 +10,11 @@ var data = {};
 
 sub.psubscribe('__keyspace@0__:*', function(err, count){
   if (err) throw err;
-  console.log('subscribed!');
-  update();
+  console.log('subscribed to keyspace');
 });
 
 sub.on('pmessage', function(channel, message){
   console.log(message);
-  update();
 });
 
 app.get('/', function (req, res) {
@@ -36,9 +34,20 @@ app.listen(3000, function () {
   console.log('Listening on port 3000');
 });
 
-var update = function(){
-  console.log('updating');
-  var newData = {nodes:[], links:[]};
+function getLinks(node, callback) {
+  redis.hgetall(node, function (err, latencies){
+    var links = Object.keys(latencies).map(function(key){
+      return {'source': parseInt(node),
+              'target': parseInt(key),
+              'value': parseInt(latencies[key])};
+    });
+    callback(links);
+  });
+}
+
+function reload() {
+  console.log('reloading');
+  var newData = {'nodes':[], 'links':[]}
 
   redis.smembers('nodes', function(err, nodes){
     newData.nodes = nodes.map(function(node){
@@ -48,16 +57,13 @@ var update = function(){
     //Keep track of number of completed db calls; simpler than using promises
     var loadedHashes = 0;
     nodes.forEach(function(node){
-      redis.hgetall(node, function (err, latencies){
-        Object.keys(latencies).forEach(function(key){
-          newData.links.push({'source': parseInt(node),
-                              'target': parseInt(key),
-                              'value': parseInt(latencies[key])});
-        });
-        if(++loadedHashes == nodes.length){ //All hashes loaded
+      getLinks(node, function(links){
+        newData.links = newData.links.concat(links);
+        if(++loadedHashes == nodes.length) //All hashes loaded
           data = newData;
-        }
       });
     });
   });
 };
+
+reload(); //Load once on startup
