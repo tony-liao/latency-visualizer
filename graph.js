@@ -2,8 +2,6 @@
 var width = 1280,
     height = 720;
 
-var color = d3.scale.category20();
-
 var force = d3.layout.force()
   .charge(-1000)
   .linkDistance(function(d){
@@ -15,27 +13,27 @@ var svg = d3.select('body').append("svg")
   .attr("width", width)
   .attr("height", height);
 
-d3.json('data.json', function(error, graph){
+svg.append("defs").selectAll("marker")
+    .data(["end"])
+  .enter().append("marker")
+    .attr("id", function(d) { return d; })
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 25)
+    .attr("refY", 2)
+    .attr("markerWidth", 6)
+    .attr("markerHeight", 6)
+    .attr("orient", "auto")
+    .style("fill", "#999")
+    .append("path")
+    .attr("d", "M0,-5L10,0L0,5");
+
+var update = function(error, graph){
   if (error) throw error;
 
   force
       .nodes(graph.nodes)
       .links(graph.links)
       .start();
-
-  svg.append("defs").selectAll("marker")
-      .data(["end"])
-    .enter().append("marker")
-      .attr("id", function(d) { return d; })
-      .attr("viewBox", "0 -5 10 10")
-      .attr("refX", 25)
-      .attr("refY", 2)
-      .attr("markerWidth", 6)
-      .attr("markerHeight", 6)
-      .attr("orient", "auto")
-      .style("fill", "#999")
-      .append("path")
-      .attr("d", "M0,-5L10,0L0,5");
 
   var link = svg.selectAll(".link")
       .data(graph.links)
@@ -47,12 +45,11 @@ d3.json('data.json', function(error, graph){
       .style("stroke-width", 3)
       .attr("marker-end", "url(#end)");
 
+  svg.selectAll(".link").data(graph.links).exit().remove();
+
   var linkText = svg.selectAll(".link")
       .append("text")
       .attr("class", "link-label")
-      //.attr("font-family", "Arial, Helvetica, sans-serif")
-      //.attr("fill", "Black")
-      //.style("font", "normal 12px Arial")
       .text(function(l){
         return l.value;
       });
@@ -63,9 +60,9 @@ d3.json('data.json', function(error, graph){
       .attr("class", "node")
       .call(force.drag)
       .append("circle")
-      .attr("class", "node-circle")
-      .style("fill", function(d) { return color(d.group); });
+      .attr("class", "node-circle");
 
+  svg.selectAll(".node").data(graph.nodes).exit().remove();
 
   var nodeText = svg.selectAll(".node")
       .append("text")
@@ -73,9 +70,6 @@ d3.json('data.json', function(error, graph){
       .text(function(n){
         return n.name;
       });
-
-  node.append("title")
-      .text(function(d) { return d.name; });
 
   var getCurvePoint = function(d, delta){
     return {"x": (d.source.x + d.target.x)/2 - (d.target.y - d.source.y) * delta,
@@ -103,4 +97,6 @@ d3.json('data.json', function(error, graph){
     nodeText.attr("x", function(d) {return d.x;})
             .attr("y", function(d) {return d.y;});
   });
-});
+};
+
+d3.json('data.json', update);
