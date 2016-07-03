@@ -1,11 +1,15 @@
+var socket = io();
+
+socket.on('data', function(links) {
+  console.log(links);
+});
+
 var width = 1280,
     height = 720;
 
 var force = d3.layout.force()
     .charge(-1000)
-    .linkDistance(function(d){
-      return 1000/d.value + 100;
-    })
+    .linkDistance(300)
     .size([width, height]);
 
 var svg = d3.select('body').append("svg")

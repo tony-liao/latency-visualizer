@@ -1,13 +1,15 @@
-var express = require('express');
+var app = require('express')();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
 var Redis = require('ioredis');
 var test = require('./test.js')();
 
-var app = express();
 var redis = new Redis(6379, '127.0.0.1');
 var sub = new Redis(6379, '127.0.0.1');
 
 var data = {};
 
+// Subscribe to redis keyspace notifications
 sub.psubscribe('__keyspace@0__:*', function(err, count){
   if (err) throw err;
   console.log('subscribed to keyspace');
@@ -15,8 +17,17 @@ sub.psubscribe('__keyspace@0__:*', function(err, count){
 
 sub.on('pmessage', function(channel, message){
   console.log(message);
+  var node = message.replace('__keyspace@0__:', '');
+  getLinks(node, function(links){
+    io.emit('data', links);
+  });
 });
 
+io.on('connection', function(socket){
+  console.log('a user connected');
+});
+
+// Routes
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
@@ -30,10 +41,11 @@ app.get('/data.json', function (req, res) {
   res.send(data);
 });
 
-app.listen(3000, function () {
+server.listen(3000, function () {
   console.log('Listening on port 3000');
 });
 
+// Access and process redis data
 function getLinks(node, callback) {
   redis.hgetall(node, function (err, latencies){
     var links = Object.keys(latencies).map(function(key){
