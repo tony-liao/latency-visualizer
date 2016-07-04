@@ -17,14 +17,20 @@ sub.psubscribe('__keyspace@0__:*', function(err, count){
 
 sub.on('pmessage', function(channel, message){
   console.log(message);
-  var node = message.replace('__keyspace@0__:', '');
-  getLinks(node, function(links){
-    io.emit('data', links);
+  //Reload to keep internal data accurate
+  reload(function(d) {
+    data = d;
+    var node = message.replace('__keyspace@0__:', '');
+    io.emit('init', data); //temporary
+    // getLinks(node, function(links){
+    //   io.emit('data', links);
+    // });
   });
 });
 
 io.on('connection', function(socket){
   console.log('a user connected');
+  socket.emit('init', data);
 });
 
 // Routes
@@ -57,7 +63,7 @@ function getLinks(node, callback) {
   });
 }
 
-function reload() {
+function reload(callback) {
   console.log('reloading');
   var newData = {'nodes':[], 'links':[]}
 
@@ -72,10 +78,13 @@ function reload() {
       getLinks(node, function(links){
         newData.links = newData.links.concat(links);
         if(++loadedHashes == nodes.length) //All hashes loaded
-          data = newData;
+          callback(newData);
       });
     });
   });
-};
+}
 
-reload(); //Load once on startup
+// Load once on startup
+reload(function(d) {
+  data = d;
+});
