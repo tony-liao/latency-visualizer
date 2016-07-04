@@ -10,6 +10,8 @@ var sub = new Redis(6379, '127.0.0.1');
 var data = {};
 
 // Subscribe to redis keyspace notifications
+redis.config('set', 'notify-keyspace-events', 'KEA');
+
 sub.psubscribe('__keyspace@0__:*', function(err, count){
   if (err) throw err;
   console.log('subscribed to keyspace');
