@@ -16,12 +16,11 @@ sub.psubscribe('__keyspace@0__:*', function(err, count){
 });
 
 sub.on('pmessage', function(channel, message){
-  console.log(message);
   //Reload to keep internal data accurate
   reload(function(d) {
     data = d;
     var node = message.replace('__keyspace@0__:', '');
-    io.emit('init', data); //temporary
+    io.emit('data', data.links);
     // getLinks(node, function(links){
     //   io.emit('data', links);
     // });
@@ -48,7 +47,7 @@ app.get('/data.json', function (req, res) {
 });
 
 server.listen(3000, function () {
-  console.log('Listening on port 3000');
+  console.log('listening on port 3000');
 });
 
 // Access and process redis data
@@ -64,7 +63,6 @@ function getLinks(node, callback) {
 }
 
 function reload(callback) {
-  console.log('reloading');
   var newData = {'nodes':[], 'links':[]}
 
   redis.smembers('nodes', function(err, nodes){

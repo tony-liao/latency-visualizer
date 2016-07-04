@@ -30,7 +30,7 @@ svg.append("defs").selectAll("marker")
 
 function update(){
   var linkLine = svg.selectAll(".link-line")
-      .data(links);
+      .data(links)
 
   linkLine.enter().append("line")
       .attr("class", "link-line")
@@ -41,11 +41,13 @@ function update(){
 
 
   var linkLabel = svg.selectAll(".link-label")
-      .data(links);
+      .data(links)
+      .text(function(d) {
+        return d.value;
+      });
 
-  linkLabel.enter().append("g")
+  linkLabel.enter().append("text")
       .attr("class", "link-label")
-      .append("text")
       .text(function(d) {
         return d.value;
       });
@@ -96,6 +98,11 @@ function update(){
               });
   }
 
+  // Draw nodes on top
+  svg.selectAll(".node").each(function(index) {
+        this.parentNode.appendChild(this);
+  });
+
   force.on("tick", draw)
        .start();
 };
@@ -107,10 +114,12 @@ socket.on('init', function(graph) {
   links.push.apply(links, graph.links);
   nodes.push.apply(nodes, graph.nodes);
   console.log(links);
-  console.log(nodes);
   update();
 });
 
-socket.on('data', function(links) {
-//  console.log(links);
+socket.on('data', function(l) {
+  links.splice(0);
+  links.push.apply(links, l);
+  update();
+  console.log(links);
 });
