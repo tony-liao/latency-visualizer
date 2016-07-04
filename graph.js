@@ -3,6 +3,10 @@ var socket = io();
 var width = 1280,
     height = 720;
 
+var color = d3.scale.linear()
+    .domain([0, 50])
+    .range(['#00ff00', '#ff0000']);
+
 var force = d3.layout.force()
     .charge(-100)
     .linkDistance(300)
@@ -31,11 +35,13 @@ svg.append("defs").selectAll("marker")
 function update(){
   var linkLine = svg.selectAll(".link-line")
       .data(links)
+      .style("stroke", function(d){return color(d.value);});
 
   linkLine.enter().append("line")
       .attr("class", "link-line")
       .attr("stroke-width", 3)
-      .attr("marker-end", "url(#end)");
+      .attr("marker-end", "url(#end)")
+      .style("stroke", function(d){return color(d.value);});
 
   linkLine.exit().remove();
 
@@ -108,12 +114,10 @@ function update(){
 };
 
 socket.on('init', function(graph) {
-  console.log(graph);
   links.splice(0);
   nodes.splice(0);
   links.push.apply(links, graph.links);
   nodes.push.apply(nodes, graph.nodes);
-  console.log(links);
   update();
 });
 
@@ -121,5 +125,4 @@ socket.on('data', function(l) {
   links.splice(0);
   links.push.apply(links, l);
   update();
-  console.log(links);
 });
