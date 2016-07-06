@@ -2,7 +2,7 @@ var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var Redis = require('ioredis');
-var test = require('./test.js')();
+//var test = require('./test.js')();
 
 var redis = new Redis(6379, '127.0.0.1');
 var sub = new Redis(6379, '127.0.0.1');
@@ -56,8 +56,8 @@ server.listen(3000, function () {
 function getLinks(node, callback) {
   redis.hgetall(node, function (err, latencies){
     var links = Object.keys(latencies).map(function(key){
-      return {'source': parseInt(node),
-              'target': parseInt(key),
+      return {'source': parseInt(node) - 1,
+              'target': parseInt(key) - 1,
               'value': parseInt(latencies[key])};
     });
     callback(links);
@@ -67,7 +67,7 @@ function getLinks(node, callback) {
 function reload(callback) {
   var newData = {'nodes':[], 'links':[]}
 
-  redis.smembers('nodes', function(err, nodes){
+  redis.smembers('NodeSet', function(err, nodes){
     newData.nodes = nodes.map(function(node){
       return {'name': "Node " + node, 'group': 1};
     });

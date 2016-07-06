@@ -9,6 +9,7 @@ var color = d3.scale.linear()
 
 var force = d3.layout.force()
     .charge(-100)
+    .gravity(0)
     .linkDistance(300)
     .size([width, height]);
 
