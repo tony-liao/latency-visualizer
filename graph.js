@@ -1,7 +1,7 @@
 var socket = io();
 
-var width = 1280,
-    height = 720;
+var width = 960,
+    height = 540;
 
 var color = d3.scale.linear()
     .domain([0, 50])
@@ -17,7 +17,7 @@ var force = d3.layout.force()
 var nodes = force.nodes(),
     links = force.links();
 
-var svg = d3.select('body').append("svg")
+var svg = d3.select("#container").append("svg")
     .attr("width", width)
     .attr("height", height)
 
