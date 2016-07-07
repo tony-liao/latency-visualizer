@@ -33,56 +33,53 @@ svg.append("defs").selectAll("marker")
     .append("path")
     .attr("d", "M0,-5L10,0L0,5");
 
+
 function update(){
-  var linkLine = svg.selectAll(".link-line")
-      .data(links)
-      .style("stroke", function(d){return color(d.value);});
-
-  linkLine.enter().append("line")
-      .attr("class", "link-line")
-      .attr("stroke-width", 3)
-      .attr("marker-end", "url(#end)")
-      .style("stroke", function(d){return color(d.value);});
-
-  linkLine.exit().remove();
-
-
-  var linkLabel = svg.selectAll(".link-label")
-      .data(links)
-      .text(function(d) {
-        return d.value;
-      });
-
-  linkLabel.enter().append("text")
-      .attr("class", "link-label")
-      .text(function(d) {
-        return d.value;
-      });
-
-  linkLabel.exit().remove();
-
-
+  // Nodes
+  // No values to update
   var node = svg.selectAll(".node")
       .data(nodes);
 
+  // Create new nodes
   var nodeEnter = node.enter().append("g")
       .attr("class", "node")
       .call(force.drag);
-
-  nodeEnter.append("circle")
-      .attr("class", "node-circle");
-
+  nodeEnter.append("circle");
   nodeEnter.append("text")
-      .attr("class", "node-label")
       .text(function(d){
         return d.name;
       });
 
+  // Remove old nodes
   node.exit().remove();
 
-  function draw(){
 
-    linkLine.each(function(d) {
+  // Links
+  // Update existing links
+  var link = svg.selectAll(".link")
+      .data(links)
+  link.select("line")
+      .style("stroke", function(d){return color(d.value);})
+  link.select("text")
+      .text(function(d){return d.value;});
+
+  // Create new links
+  var linkEnter = link.enter().append("g")
+      .attr("class", "link");
+  linkEnter.append("line")
+      .style("stroke", function(d){return color(d.value);})
+      .attr("stroke-width", 3)
+      .attr("marker-end", "url(#end)");
+  linkEnter.append("text")
+      .text(function(d){return d.value;})
+
+  // Remove old links
+  link.exit().remove();
+
+
+  function draw(){
+    // Update link location
+    svg.selectAll(".link").selectAll("line").each(function(d) {
       var dx = (d.target.y - d.source.y) * -0.03,
           dy = (d.target.x - d.source.x) * 0.03;
 
@@ -91,8 +88,7 @@ function update(){
           .attr("x2", d.target.x + dx)
           .attr("y2", d.target.y + dy);
     });
-
-    linkLabel.attr("transform", function(d) {
+    svg.selectAll(".link").selectAll("text").attr("transform", function(d) {
       var dx = (d.target.y - d.source.y) * -0.07,
           dy = (d.target.x - d.source.x) * 0.07;
 
@@ -100,6 +96,7 @@ function update(){
                             ((d.source.y + d.target.y)/2 + dy + 7) + ")";
     });
 
+    // Update node location
     node.attr("transform", function (d) {
                 return "translate(" + d.x + "," + d.y + ")";
               });
