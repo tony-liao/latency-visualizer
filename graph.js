@@ -98,13 +98,16 @@ function update(){
 
     // Update node location
     node.attr("transform", function (d) {
-                return "translate(" + d.x + "," + d.y + ")";
-              });
+      return "translate(" + d.x + "," + d.y + ")";
+    });
+    node.selectAll("text").attr("transform", function(d) {
+      return "translate(0,3)";
+    });
   }
 
   // Draw nodes on top
   svg.selectAll(".node").each(function(index) {
-        this.parentNode.appendChild(this);
+    this.parentNode.appendChild(this);
   });
 
   force.on("tick", draw)
