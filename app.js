@@ -2,7 +2,7 @@ var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var Redis = require('ioredis');
-//var test = require('./test.js')();
+var test = require('./test.js')();
 
 var redis = new Redis(6379, '127.0.0.1');
 var sub = new Redis(6379, '127.0.0.1');
