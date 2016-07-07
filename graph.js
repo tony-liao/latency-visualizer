@@ -8,9 +8,10 @@ var color = d3.scale.linear()
     .range(['#00ff00', '#ff0000']);
 
 var force = d3.layout.force()
-    .charge(-100)
-    .gravity(0)
-    .linkDistance(300)
+    .linkStrength(0.5)
+    .charge(-500)
+    .gravity(0.04)
+    .linkDistance(200)
     .size([width, height]);
 
 var nodes = force.nodes(),
@@ -58,16 +59,15 @@ function update(){
   // Update existing links
   var link = svg.selectAll(".link")
       .data(links)
-  link.select("line")
-      .style("stroke", function(d){return color(d.value);})
+      .style("stroke", function(d){return color(d.value);});
   link.select("text")
       .text(function(d){return d.value;});
 
   // Create new links
   var linkEnter = link.enter().append("g")
-      .attr("class", "link");
+      .attr("class", "link")
+      .style("stroke", function(d){return color(d.value);});
   linkEnter.append("line")
-      .style("stroke", function(d){return color(d.value);})
       .attr("stroke-width", 3)
       .attr("marker-end", "url(#end)");
   linkEnter.append("text")
@@ -89,11 +89,11 @@ function update(){
           .attr("y2", d.target.y + dy);
     });
     svg.selectAll(".link").selectAll("text").attr("transform", function(d) {
-      var dx = (d.target.y - d.source.y) * -0.07,
-          dy = (d.target.x - d.source.x) * 0.07;
+      var dx = (d.target.y - d.source.y) * -0.09,
+          dy = (d.target.x - d.source.x) * 0.09;
 
       return "translate(" + ((d.source.x + d.target.x)/2 + dx) + "," +
-                            ((d.source.y + d.target.y)/2 + dy + 7) + ")";
+                            ((d.source.y + d.target.y)/2 + dy + 5) + ")";
     });
 
     // Update node location
