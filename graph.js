@@ -79,8 +79,11 @@ function update(){
   function draw(){
     // Update link location
     svg.selectAll(".link").selectAll("line").each(function(d) {
-      var dx = (d.target.y - d.source.y) * -0.03,
-          dy = (d.target.x - d.source.x) * 0.03;
+      var dx = d.source.y - d.target.y,
+          dy = d.target.x - d.source.x,
+          mag = Math.sqrt(dx*dx + dy*dy);
+      dx *= 6/mag;
+      dy *= 6/mag;
 
       d3.select(this).attr("x1", d.source.x + dx)
           .attr("y1", d.source.y + dy)
@@ -88,19 +91,22 @@ function update(){
           .attr("y2", d.target.y + dy);
     });
     svg.selectAll(".link").selectAll("text").attr("transform", function(d) {
-      var dx = (d.target.y - d.source.y) * -0.09,
-          dy = (d.target.x - d.source.x) * 0.09;
+      var dx = d.source.y - d.target.y,
+          dy = d.target.x - d.source.x,
+          mag = Math.sqrt(dx*dx + dy*dy);
+      dx *= 17/mag;
+      dy *= 17/mag;
 
       return "translate(" + ((d.source.x + d.target.x)/2 + dx) + "," +
                             ((d.source.y + d.target.y)/2 + dy + 5) + ")";
     });
-    console.log(node);
+
     // Update node location
     svg.selectAll(".node").attr("transform", function (d) {
       return "translate(" + d.x + "," + d.y + ")";
     });
     svg.selectAll(".node").selectAll("text").attr("transform", function(d) {
-      return "translate(0,3)";
+      return "translate(0,7)";
     });
   }
 
@@ -115,7 +121,7 @@ function update(){
 
   simulation.force("link")
       .links(links)
-      .distance(150);
+      .distance(120);
 
 
   function dragstarted(d) {
