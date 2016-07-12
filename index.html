@@ -4,25 +4,25 @@
     <meta charset="utf-8">
     <title>Latency Visualizer</title>
     <style>
-    .node circle {
+    svg .node circle {
       fill: #999;
       stroke: #fff;
       stroke-width: 1.5px;
       r: 30;
     }
-    .node text {
+    svg .node text {
       font: normal 12px Arial;
       text-anchor: middle;
       fill: white;
     }
-    .link {
+    svg .link {
       stroke-opacity: 1;
     }
-    .link text {
+    svg .link text {
       font: normal 12px Arial;
       text-anchor: middle;
     }
-    marker {
+    svg marker {
       fill: #999;
     }
     svg {
@@ -42,9 +42,11 @@
     </style>
   </head>
   <body>
-    <div id="container"></div>
+    <div id="container">
+      <svg width="960" height="540"></svg>
+    </div>
     <script src="/socket.io/socket.io.js"></script>
-    <script src='//d3js.org/d3.v3.min.js'></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src='graph.js'></script>
   </body>
 </html>

@@ -56,8 +56,8 @@ server.listen(3000, function () {
 function getLinks(node, callback) {
   redis.hgetall(node, function (err, latencies){
     var links = Object.keys(latencies).map(function(key){
-      return {'source': parseInt(node) - 1,
-              'target': parseInt(key) - 1,
+      return {'source': node,
+              'target': key,
               'value': parseInt(latencies[key])};
     });
     callback(links);
@@ -69,7 +69,7 @@ function reload(callback) {
 
   redis.smembers('NodeSet', function(err, nodes){
     newData.nodes = nodes.map(function(node){
-      return {'name': "Node " + node, 'group': 1};
+      return {'id': node};
     });
 
     //Keep track of number of completed db calls; simpler than using promises
