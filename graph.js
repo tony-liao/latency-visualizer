@@ -49,7 +49,6 @@ function update(){
       .text(function(d){
         return d.id;
       });
-
   // Remove old nodes
   node.exit().remove();
 
@@ -57,20 +56,23 @@ function update(){
   // Links
   // Update existing links
   var link = svg.selectAll(".link")
-      .data(links)
+      .data(links);
+  link.select("line")
       .style("stroke", function(d){return color(d.value);});
   link.select("text")
-      .text(function(d){return d.value;});
+      .text(function(d){return d.value;})
+      .style("fill", function(d){return color(d.value);});
 
   // Create new links
   var linkEnter = link.enter().append("g")
       .attr("class", "link")
-      .style("stroke", function(d){return color(d.value);});
   linkEnter.append("line")
       .attr("stroke-width", 3)
-      .attr("marker-end", "url(#end)");
+      .attr("marker-end", "url(#end)")
+      .style("stroke", function(d){return color(d.value);});
   linkEnter.append("text")
       .text(function(d){return d.value;})
+      .style("fill", function(d){return color(d.value);});
 
   // Remove old links
   link.exit().remove();
@@ -142,16 +144,35 @@ function update(){
   }
 }
 
-socket.on('init', function(graph) {
-  links.splice(0);
-  nodes.splice(0);
-  links.push.apply(links, graph.links);
+socket.on('update', function(graph) {
+  // Add new nodes and remove old ones manually
+  // forEach() would have looked better but has issues with splice()
+  var i, j;
+  for(i = nodes.length - 1; i >= 0; i--)
+  {
+    var found = false;
+    for(j = graph.nodes.length - 1; j >= 0; j--)
+    {
+      if(nodes[i].id === graph.nodes[j].id)
+      {
+        graph.nodes.splice(j, 1);
+        found = true;
+      }
+    }
+    if(!found)
+      nodes.splice(i, 1);
+  }
   nodes.push.apply(nodes, graph.nodes);
-  update();
-});
 
-socket.on('data', function(l) {
+  // d3 seems to deal with links automatically fairly well
   links.splice(0);
-  links.push.apply(links, l);
+  links.push.apply(links, graph.links);
+
   update();
+
+  // Run simulation for 500ms to move new nodes out of the corner
+  simulation.alphaTarget(0.3).restart();
+  setTimeout(function(){
+    simulation.alphaTarget(0);
+  }, 500);
 });

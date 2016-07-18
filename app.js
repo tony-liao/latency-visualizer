@@ -7,7 +7,7 @@ var test = require('./test.js')();
 var redis = new Redis(6379, '127.0.0.1');
 var sub = new Redis(6379, '127.0.0.1');
 
-var data = {};
+var graph = {};
 
 // Subscribe to redis keyspace notifications
 redis.config('set', 'notify-keyspace-events', 'KEA');
@@ -19,19 +19,16 @@ sub.psubscribe('__keyspace@0__:*', function(err, count){
 
 sub.on('pmessage', function(channel, message){
   //Reload to keep internal data accurate
-  reload(function(d) {
-    data = d;
+  reload(function(g) {
+    graph = g;
     var node = message.replace('__keyspace@0__:', '');
-    io.emit('data', data.links);
-    // getLinks(node, function(links){
-    //   io.emit('data', links);
-    // });
+    io.emit('update', graph);
   });
 });
 
 io.on('connection', function(socket){
   console.log('a user connected');
-  socket.emit('init', data);
+  socket.emit('update', graph);
 });
 
 // Routes
@@ -44,8 +41,7 @@ app.get('/graph.js', function (req, res) {
 });
 
 app.get('/data.json', function (req, res) {
-  //console.log(data);
-  res.send(data);
+  res.send(graph);
 });
 
 server.listen(3000, function () {
@@ -65,10 +61,10 @@ function getLinks(node, callback) {
 }
 
 function reload(callback) {
-  var newData = {'nodes':[], 'links':[]}
+  var newGraph = {'nodes':[], 'links':[]}
 
   redis.smembers('NodeSet', function(err, nodes){
-    newData.nodes = nodes.map(function(node){
+    newGraph.nodes = nodes.map(function(node){
       return {'id': node};
     });
 
@@ -76,15 +72,15 @@ function reload(callback) {
     var loadedHashes = 0;
     nodes.forEach(function(node){
       getLinks(node, function(links){
-        newData.links = newData.links.concat(links);
+        newGraph.links = newGraph.links.concat(links);
         if(++loadedHashes == nodes.length) //All hashes loaded
-          callback(newData);
+          callback(newGraph);
       });
     });
   });
 }
 
 // Load once on startup
-reload(function(d) {
-  data = d;
+reload(function(g) {
+  graph = g;
 });
